@@ -1,0 +1,38 @@
+version: "3.1"
+
+networks:
+    public:
+        driver: bridge
+    internal:
+        driver: bridge
+        internal: true
+
+volumes:
+    kairos_api_mongo_data:
+        external: true
+
+services:
+    api:
+        build: ./image/php7.2-apache
+        networks:
+            - internal
+            - public
+        env_file: 
+            - ./.env
+            - ${API_PATH}/.env
+        environment:
+            - APP_ENV=dev
+            - APP_DEBUG=1
+        volumes:
+            - ${API_PATH}:/var/www/html
+        depends_on:
+            - mongo
+        ports:
+            - 80:80
+    mongo:
+        image: mongo
+        networks:
+            - internal
+        volumes:
+            - kairos_api_mongo_data:/data/db
+
